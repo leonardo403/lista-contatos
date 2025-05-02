@@ -1,22 +1,32 @@
 <?php
-namespace App\DTO;
+namespace App\DTOs;
 
 class ContactDTO
 {
-    public $name;
-    public $cpf;
-    public $phone;
-    public $address;
-    public $latitude;
-    public $longitude;
+    public function __construct(
+        public string $name,
+        public string $email,
+        public string $phone,
+        public int $user_id,
+    ) {}
 
-    public function __construct(array $data)
+    public static function fromArray(array $data, int $userId): self
     {
-        $this->name = $data['name'];
-        $this->cpf = $data['cpf'];
-        $this->phone = $data['phone'];
-        $this->address = $data['address'];
-        $this->latitude = $data['latitude'];
-        $this->longitude = $data['longitude'];
+        return new self(
+            name: $data['name'],
+            email: $data['email'],
+            phone: $data['phone'],
+            user_id: $userId
+        );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'name'     => $this->name,
+            'email'    => $this->email,
+            'phone'    => $this->phone,
+            'user_id'  => $this->user_id,
+        ];
     }
 }

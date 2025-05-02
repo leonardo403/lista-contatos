@@ -1,62 +1,38 @@
 <?php
+
 namespace App\Services;
 
-use App\Repositories\ContactRepository;
-use App\DTO\ContactDTO;
-use Illuminate\Support\Facades\Http;
+use App\DTOs\ContactDTO;
+use App\Interfaces\ContactRepositoryInterface;
 
 class ContactService
 {
-    protected $contactRepository;
+    public function __construct(
+        protected ContactRepositoryInterface $repository
+    ) {}
 
-    public function __construct(ContactRepository $contactRepository)
+    public function list(int $userId)
     {
-        $this->contactRepository = $contactRepository;
+        return $this->repository->all($userId);
     }
 
-    public function createContact(ContactDTO $contactDTO)
+    public function create(ContactDTO $dto)
     {
-        // Validar CPF, endereço, e geocodificar o endereço
-        $address = $this->geocodeAddress($contactDTO->address);
-
-        $contactDTO->latitude = $address['results'][0]['geometry']['location']['lat'];
-        $contactDTO->longitude = $address['results'][0]['geometry']['location']['lng'];
-
-        return $this->contactRepository->create($contactDTO);
+        return $this->repository->create($dto);
     }
 
-    public function getContacts($request)
+    public function update(int $id, ContactDTO $dto)
     {
-        return $this->contactRepository->getAll($request);
+        return $this->repository->update($id, $dto);
     }
 
-    public function getContactById($id)
+    public function find(int $id)
     {
-        return $this->contactRepository->find($id);
+        return $this->repository->find($id);
     }
 
-    public function updateContact($id, ContactDTO $contactDTO)
+    public function delete(int $id)
     {
-        $address = $this->geocodeAddress($contactDTO->address);
-
-        $contactDTO->latitude = $address['results'][0]['geometry']['location']['lat'];
-        $contactDTO->longitude = $address['results'][0]['geometry']['location']['lng'];
-
-        return $this->contactRepository->update($id, $contactDTO);
-    }
-
-    public function deleteContact($id)
-    {
-        return $this->contactRepository->delete($id);
-    }
-
-    public function geocodeAddress($address)
-    {
-        $googleMapsApiKey = env('GOOGLE_MAPS_API_KEY');
-        $response = Http::get("https://maps.googleapis.com/maps/api/geocode/json", [
-            'address' => $address,
-            'key' => $googleMapsApiKey
-        ]);
-        return $response->json();
+        return $this->repository->delete($id);
     }
 }

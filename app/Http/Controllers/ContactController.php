@@ -1,44 +1,55 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\DTOs\ContactDTO;
+use App\Http\Requests\StoreContactRequest;
+use App\Http\Requests\UpdateContactRequest;
 use App\Services\ContactService;
 use Illuminate\Http\Request;
-use App\Http\Requests\ContactRequest;
-use App\DTO\ContactDTO;
 
 class ContactController extends Controller
 {
-    protected $contactService;
-
-    public function __construct(ContactService $contactService)
-    {
-        $this->contactService = $contactService;
-    }
+    public function __construct(
+        protected ContactService $service
+    ) {}
 
     public function index(Request $request)
     {
-        return $this->contactService->getContacts($request);
+        return response()->json(
+            $this->service->list($request->user()->id)
+        );
+    }
+
+    public function store(StoreContactRequest $request)
+    {
+        $dto = ContactDTO::fromArray($request->validated(), $request->user()->id);
+        return response()->json($this->service->create($dto), 201);
     }
 
     public function show($id)
     {
-        return $this->contactService->getContactById($id);
+        $contact = $this->service->find($id);
+        if (!$contact) return response()->json(['message' => 'Not found'], 404);
+
+        return response()->json($contact);
     }
 
-    public function store(ContactRequest $request)
+    public function update(UpdateContactRequest $request, $id)
     {
-        $contactDTO = new ContactDTO($request->validated());
-        return $this->contactService->createContact($contactDTO);
-    }
+        $dto = ContactDTO::fromArray($request->validated(), $request->user()->id);
+        $updated = $this->service->update($id, $dto);
+        if (!$updated) return response()->json(['message' => 'Not found'], 404);
 
-    public function update(Request $request, $id)
-    {
-        $contactDTO = new ContactDTO($request->validated());
-        return $this->contactService->updateContact($id, $contactDTO);
+        return response()->json($updated);
     }
 
     public function destroy($id)
     {
-        return $this->contactService->deleteContact($id);
+        if (!$this->service->delete($id)) {
+            return response()->json(['message' => 'Not found'], 404);
+        }
+
+        return response()->json(null, 204);
     }
 }
