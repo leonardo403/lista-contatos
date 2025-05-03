@@ -9,6 +9,7 @@ const routes = [
   { path: '/login', component: LoginView },
   { path: '/register', component: RegisterView },
   { path: '/contacts', component: ContactsView },
+  { path: '/contacts/new', component: ContactDetailView },
   { path: '/contacts/:id', component: ContactDetailView },
 ]
 
