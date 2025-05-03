@@ -4,8 +4,12 @@ namespace App\Providers;
 
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
-use App\Interfaces\ContactRepositoryInterface;
-use App\Repositories\ContactRepository;
+use App\Interfaces\{
+    ContactRepositoryInterface,AddressRepositoryInterface
+};
+use App\Repositories\{
+    ContactRepository,AddressRepository
+};
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ContactRepositoryInterface::class, ContactRepository::class);
+        $this->app->bind(AddressRepositoryInterface::class, AddressRepository::class);
     }
 
     /**
