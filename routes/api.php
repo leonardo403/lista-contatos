@@ -15,6 +15,11 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::middleware('guest')->post('/register', [AuthController::class, 'register']);
+Route::middleware('guest')->post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->get('/user', fn(Request $req) => $req->user());
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('contacts', ContactController::class);
